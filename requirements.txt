@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlalchemy
+alembic
+slowapi
+python-dotenv
+pyjwt
+passlib
+email-validator
