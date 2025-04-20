@@ -1,6 +1,7 @@
 fastapi
 uvicorn
 sqlalchemy
+sqlmodel
 alembic
 slowapi
 python-dotenv
@@ -8,3 +9,6 @@ pyjwt
 psycopg2-binary
 passlib
 email-validator
+cryptography
+bcrypt
+pydantic-settings
