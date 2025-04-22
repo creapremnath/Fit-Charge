@@ -7,14 +7,14 @@ public distribution or use without explicit permission from the owner.
 All rights reserved (c) 2025.
 """
 
-__author__        = "Premnath Palanichamy, Karthikeyan Kabilan"
+__author__ = "Premnath Palanichamy, Karthikeyan Kabilan"
 __collaborators__ = "Premnath Palanichamy <creativepremnath@gmail.com>, Karthikeyan Kabilan <karthik.codes.dev@gmail.com>"
-__copyright__     = "Copyright 2024, fitcharge"
-__license__       = "Refer Terms and Conditions"
-__version__       = "1.0"
-__maintainer__    = "Premnath Palanichamy"
-__status__        = "Development"
-__desc__          = "Fitcharge configuration file"
+__copyright__ = "Copyright 2024, fitcharge"
+__license__ = "Refer Terms and Conditions"
+__version__ = "1.0"
+__maintainer__ = "Premnath Palanichamy"
+__status__ = "Development"
+__desc__ = "Fitcharge configuration file"
 
 
 f"""
@@ -26,6 +26,7 @@ from pydantic_settings import BaseSettings
 from pydantic import Field
 from typing import Optional
 from urllib.parse import quote
+
 
 class Settings(BaseSettings):
     # Your fields remain the same...
@@ -55,5 +56,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+
 
 settings = Settings()

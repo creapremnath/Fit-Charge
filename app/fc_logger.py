@@ -1,11 +1,32 @@
+"""
+Private License (fitcharge)
+
+This script is privately licensed and confidential. It is not intended for
+public distribution or use without explicit permission from the owner.
+
+All rights reserved (c) 2025.
+"""
+
+__author__ = "Premnath Palanichamy, Karthikeyan Kabilan"
+__collaborators__ = "Premnath Palanichamy <creativepremnath@gmail.com>, Karthikeyan Kabilan <karthik.codes.dev@gmail.com>"
+__copyright__ = "Copyright 2024, fitcharge"
+__license__ = "Refer Terms and Conditions"
+__version__ = "1.0"
+__maintainer__ = "Premnath Palanichamy"
+__status__ = "Development"
+__desc__ = "Fitcharge logger configuration"
+
+
 import os
 import logging
 from logging.handlers import RotatingFileHandler
 from config import settings
 
+
 def validate_log_dir(logdir: str) -> None:
     """Ensure log directory exists."""
     os.makedirs(logdir, exist_ok=True)
+
 
 def get_logger(name: str) -> logging.Logger:
     """Set up and return the application logger with rotating file support."""
@@ -27,16 +48,18 @@ def get_logger(name: str) -> logging.Logger:
     logger.setLevel(log_level)
 
     # Formatter
-    log_format = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
+    log_format = logging.Formatter(
+        "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+    )
 
     # Rotating File Handler
     file_handler = RotatingFileHandler(
         filename=log_file,
-        mode='a',
+        mode="a",
         maxBytes=10 * 1024 * 1024,  # 10 MB
-        backupCount=3,             # Keep last 3 rotated logs
-        encoding='utf-8',
-        delay=False
+        backupCount=3,  # Keep last 3 rotated logs
+        encoding="utf-8",
+        delay=False,
     )
     file_handler.setLevel(log_level)  # apply your mode here
     file_handler.setFormatter(log_format)
