@@ -1,5 +1,5 @@
 # Use a lightweight Python image
-FROM python:3.12.9-slim-bookworm
+FROM python:3.12.9-bookworm
 LABEL maintainer="creativepremnath@gmail.com"
 
 # Set environment variables
