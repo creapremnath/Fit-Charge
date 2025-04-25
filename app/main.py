@@ -22,7 +22,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from db.database import wait_for_db,init_db,create_database_if_not_exists
 from fc_logger import get_logger
 
-from routers import user
+from routers import user,workout
 
 
 logger = get_logger("fitcharge.main")
@@ -52,8 +52,4 @@ def on_startup():
 
 
 app.include_router(user.router)
-
-
-@app.post("/items/", status_code=status.HTTP_404_NOT_FOUND)
-async def create_item(name: str):
-    return {"name": name}
+app.include_router(workout.router)
