@@ -46,3 +46,11 @@ docker compose down
 
 #ip of postgres container
 docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' postgres_container
+
+
+
+db migration on docker
+
+docker compose run --rm app alembic revision --autogenerate -m "removed some field to user"
+
+docker compose run --rm app alembic upgrade head
