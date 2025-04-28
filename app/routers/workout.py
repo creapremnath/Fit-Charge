@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, status, HTTPException, Response
-from typing import List
+from fastapi import APIRouter, Depends, status, HTTPException, Response,Query
+from typing import List,Optional
 from sqlmodel import Session, select
 from db.database import get_session
 from models.workouts_model import Workout
@@ -37,13 +37,39 @@ def get_workout(workout_id: int, session: Session = Depends(get_session)):
     return workout
 
 @router.get("/workouts/", response_model=List[Workout])
-def list_all_workouts(session: Session = Depends(get_session)):
+def list_all_workouts(
+    session: Session = Depends(get_session),
+    skip: int = Query(0, ge=0),  # Default to skip 0 (first page)
+    limit: int = Query(100, le=1000),  # Default to limit 100, max 1000
+    workout_name: Optional[str] = Query(None),  # Optional: Filter by workout name
+    body_muscle: Optional[str] = Query(None),  # Optional: Filter by body muscle
+    workout_level: Optional[str] = Query(None)  # Optional: Filter by workout level
+):
     """
-    List all workouts from the database.
+    List workouts from the database with optional filtering by name and level, and pagination.
     """
-    workouts = session.exec(select(Workout)).all()
-    logger.info(f"Fetched {len(workouts)} workouts")
-    return workouts
+    try:
+        # Build the query, with explicit ordering by 'id' and selecting only needed fields
+        query = select(Workout).offset(skip).limit(limit).order_by(Workout.id)
+
+        # Apply filters
+        if workout_name:
+            query = query.filter(Workout.workout.ilike(f"%{workout_name}%"))  # Case-insensitive search for name
+        if workout_level:
+            query = query.filter(Workout.level == workout_level)  # Exact match for workout level
+        if body_muscle:
+            query = query.filter(Workout.bodypart.ilike(f"%{body_muscle}%")) # Exact match for body muscle
+
+        # Execute the query
+        workouts = session.exec(query).all()
+
+        return workouts
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while fetching workouts."
+        )
 
 @router.put("/workouts/{workout_id}", response_model=Workout)
 def update_workout(workout_id: int, updated_workout: Workout, session: Session = Depends(get_session)):
