@@ -4,7 +4,14 @@ from pydantic import EmailStr
 from datetime import datetime
 
 
+
+# --------------------
+# Workout Model
+# --------------------
 class Workout(SQLModel, table=True):
+    """This is SQLModel of Workout Table which includes
+        Pydantic and 
+    """
     id: Optional[int] = Field(default=None, primary_key=True)
     workout: Optional[str] = Field(default=None)  # Nullable field
     workout_desc: Optional[str] = Field(default=None)  # Nullable field
