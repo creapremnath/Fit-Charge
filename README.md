@@ -54,3 +54,4 @@ db migration on docker
 docker compose run --rm app alembic revision --autogenerate -m "removed some field to user"
 
 docker compose run --rm app alembic upgrade head
+change
