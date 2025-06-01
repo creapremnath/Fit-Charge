@@ -95,7 +95,7 @@ def sign_up(SignUpData: users_model.SignUp, session: Session = Depends(get_sessi
 
     if existing_user:
         if existing_user.is_verified and not existing_user.is_active and not existing_user.username:
-            # ✅ Update allowed
+            # Update allowed
             existing_user.username = SignUpData.username
             existing_user.mobile = user_mobile
             existing_user.password = encrypt_password(SignUpData.password)

@@ -10,7 +10,7 @@ from datetime import datetime
 # --------------------
 class Workout(SQLModel, table=True):
     """This is SQLModel of Workout Table which includes
-        Pydantic and 
+        Pydantic and
     """
     id: Optional[int] = Field(default=None, primary_key=True)
     workout: Optional[str] = Field(default=None)  # Nullable field
@@ -21,3 +21,10 @@ class Workout(SQLModel, table=True):
     level: Optional[str] = Field(default=None)  # Nullable field
     rating: Optional[float] = Field(default=None)  # Nullable field
     rating_desc: Optional[str] = Field(default=None)  # Nullable field
+
+
+# class WorkoutLog(SQLModel, table=True):
+#     """This is a SQL Model of Daily Users Workout Models."""
+
+#     id:Optional[int] = Field(default=None, primary_key=True)
+#     workout_id:
