@@ -18,14 +18,14 @@ __desc__ = "Fitcharge main file"
 
 
 from fastapi import FastAPI, HTTPException, Depends, status
-from fastapi.middleware.cors import CORSMiddleware
-from db.database import wait_for_db,init_db,create_database_if_not_exists
-from fc_logger import get_logger
+# from fastapi.middleware.cors import CORSMiddleware
+# from db.database import wait_for_db,init_db,create_database_if_not_exists
+# from fc_logger import get_logger
 
-from routers import user,workout
+# from routers import user,workout
 
 
-logger = get_logger("fitcharge.main")
+# logger = get_logger("fitcharge.main")
 
 app = FastAPI(
     title="Fit Charge",
@@ -34,15 +34,15 @@ app = FastAPI(
     swagger_ui_parameters={"syntaxHighlight": True}
 )
 
-origins=["*"]
+# origins=["*"]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=origins,
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 # @app.on_event("startup")
 # def on_startup():
