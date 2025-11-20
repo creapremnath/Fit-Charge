@@ -44,12 +44,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.on_event("startup")
-def on_startup():
-    create_database_if_not_exists()
-    wait_for_db()
-    init_db()
+# @app.on_event("startup")
+# def on_startup():
+#     create_database_if_not_exists()
+#     wait_for_db()
+#     init_db()
 
 
-app.include_router(user.router)
-app.include_router(workout.router)
+# app.include_router(user.router)
+# app.include_router(workout.router)
+
+
+@app.get("/")
+def home():
+    return "Hello Mr.Premnath"
