@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      /* Base Styles */
+      body {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f6f9fc;
+        color: #555555;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .header {
+        background-color: #e70331; /* Green header */
+        color: #ffffff;
+        padding: 30px;
+        text-align: center;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+      }
+      .content {
+        padding: 20px;
+        text-align: center;
+      }
+      .otp-code {
+        font-size: 36px;
+        font-weight: bold;
+        color: #ff0019; /* Green OTP code */
+        margin: 20px 0;
+        padding: 10px 15px;
+        border: 2px solid #595959;
+        border-radius: 5px;
+        display: inline-block;
+      }
+
+      .footer {
+        font-size: 12px;
+        color: #888888;
+        text-align: center;
+        padding: 15px;
+        border-top: 1px solid #f0f0f0;
+        background-color: #f9f9f9;
+      }
+      .footer p {
+        margin: 5px 0;
+      }
+      @media only screen and (max-width: 600px) {
+        .container {
+          width: 90%;
+        }
+        .header {
+          padding: 20px;
+        }
+        .content {
+          padding: 15px;
+        }
+        .otp-code {
+          font-size: 28px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>OTP Verification from Fit-Charge</h1>
+      </div>
+      <div class="content">
+        <p>Hello, <strong>User</strong>!</p>
+        <p>Your One-Time Password (OTP) for verification is:</p>
+        <div class="otp-code">{{ otp }}</div>
+        <p>
+          Please enter this OTP in the application to complete your
+          verification. This code is valid for <strong>1:30 minute</strong>.
+        </p>
+      </div>
+      <div class="footer">
+        <p>Thank you for using Fitcharge!</p>
+        <p>Fitcharge | Thirupathur, Sivagangai,TamilNadu, 630211</p>
+        <p>
+          <strong
+            >Please do not reply to this email. This mailbox is not
+            monitored.</strong
+          >
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

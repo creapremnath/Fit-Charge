@@ -5,10 +5,12 @@ sqlmodel
 alembic
 slowapi
 python-dotenv
-pyjwt
+python-jose
 psycopg2-binary
 passlib
 email-validator
+fastapi-mail
 cryptography
 bcrypt
 pydantic-settings
+python-multipart

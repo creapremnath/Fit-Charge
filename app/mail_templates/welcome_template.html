@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f6f9fc;
+        color: #555555;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .header {
+        background-color: #28a745; /* Green header */
+        color: #ffffff;
+        padding: 30px;
+        text-align: center;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+      }
+      .content {
+        padding: 20px;
+        text-align: center;
+      }
+      .button {
+        display: inline-block;
+        padding: 12px 25px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #ffffff;
+        background-color: #28a745; /* Green button */
+        text-decoration: none;
+        border-radius: 5px;
+        margin-top: 20px;
+        transition: background-color 0.3s ease;
+      }
+      .button:hover {
+        background-color: #218838; /* Darker green on hover */
+      }
+      .footer {
+        font-size: 12px;
+        color: #888888;
+        text-align: center;
+        padding: 15px;
+        border-top: 1px solid #f0f0f0;
+        background-color: #f9f9f9;
+      }
+      .footer p {
+        margin: 5px 0;
+      }
+      @media only screen and (max-width: 600px) {
+        .container {
+          width: 90%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Welcome to qtools!</h1>
+      </div>
+      <div class="content">
+        <p>Hello, <strong>{{ user_name }}</strong>!</p>
+        <p>
+          We’re excited to have you on board. Your account has been successfully
+          created.
+        </p>
+        <p>You can now log in and start using our service:</p>
+        <a href="https://yourwebsite.com/login" class="button"
+          >Login to Your Account</a
+        >
+        <p>
+          If you did not create this account, please contact our support team
+          immediately.
+        </p>
+      </div>
+      <div class="footer">
+        <p>Thank you for choosing qtools!</p>
+        <p>Your Company | 123 Main Street, City, State, ZIP</p>
+        <p>
+          <strong
+            >Please do not reply to this email. This mailbox is not
+            monitored.</strong
+          >
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
