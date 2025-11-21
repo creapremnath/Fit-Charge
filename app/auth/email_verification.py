@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException,BackgroundTasks,Depends
-from services.email_sender import mail_engine
+from app.services.email_sender import mail_engine
 from fastapi.responses import JSONResponse
 from sqlmodel import Session, select
-from auth.otp import generate_otp, verify_otp
-from models import users_model
-from db.database import get_session
+from app.auth.otp import generate_otp, verify_otp
+from app.models import users_model
+from app.db.database import get_session
 
 
 # Router instance

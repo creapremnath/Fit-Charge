@@ -20,11 +20,11 @@ __desc__ = "Fitcharge main file"
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from db.database import wait_for_db,init_db,create_database_if_not_exists
-from fc_logger import get_logger
+from app.db.database import wait_for_db,init_db,create_database_if_not_exists
+from app.fc_logger import get_logger
 
-from routers import user,workout,profile
-from auth import authentication,email_verification
+from app.routers import user,workout,profile
+from app.auth import authentication,email_verification
 
 logger = get_logger("fitcharge.main")
 
@@ -44,7 +44,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.mount("/static", StaticFiles(directory="uploads"), name="static")
+# app.mount("/static", StaticFiles(directory="uploads"), name="static")
 
 @app.on_event("startup")
 def on_startup():

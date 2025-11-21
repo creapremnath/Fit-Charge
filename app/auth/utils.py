@@ -19,7 +19,7 @@ __desc__ = "Main Program of qtools applications"
 # Import necessary modules
 from passlib.context import CryptContext
 from cryptography.fernet import Fernet
-from config import settings
+from app.config import settings
 
 ################################################################
 key=settings.key
@@ -27,10 +27,10 @@ key=settings.key
 cipher_suite = Fernet(key)
 
 # Initialize CryptContext
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 def encrypt_password(password: str) -> str:
-    """Encrypt a password using bcrypt."""
+    """Encrypt a password using argon2."""
     return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

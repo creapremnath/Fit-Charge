@@ -3,7 +3,7 @@ import smtplib
 import ssl
 from email.message import EmailMessage
 from jinja2 import Environment, FileSystemLoader
-from config import settings
+from app.config import settings
 
 
 # Set up Jinja2 environment
