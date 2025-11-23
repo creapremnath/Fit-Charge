@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Response,Query
 from typing import List,Optional
 from sqlmodel import Session, select
-from app.db.database import get_session
-from app.models.workouts_model import Workout
-from app.fc_logger import get_logger
+from db.database import get_session
+from models.workouts_model import Workout
+from fc_logger import get_logger
 
 # Initialize logger
 logger = get_logger("routers.workout")

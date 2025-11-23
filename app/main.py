@@ -20,11 +20,11 @@ __desc__ = "Fitcharge main file"
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from app.db.database import wait_for_db,init_db,create_database_if_not_exists
-from app.fc_logger import get_logger
+from db.database import wait_for_db,init_db,create_database_if_not_exists
+from fc_logger import get_logger
 
-from app.routers import user,workout,profile
-from app.auth import authentication,email_verification
+from routers import user,workout,profile
+from auth import authentication,email_verification
 
 logger = get_logger("fitcharge.main")
 

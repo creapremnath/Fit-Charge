@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Response, Query, Request,BackgroundTasks
 from typing import List
 from sqlmodel import Session, select
-from app.db.database import get_session
-from app.models import users_model
-from app.fc_logger import get_logger
-from app.auth.utils import verify_password,encrypt_password
-from app.auth.oauth2 import create_access_token,create_refresh_token
-from app.auth.otp import generate_otp, verify_otp
-from app.services.email_sender import mail_engine
+from db.database import get_session
+from models import users_model
+from fc_logger import get_logger
+from auth.utils import verify_password,encrypt_password
+from auth.oauth2 import create_access_token,create_refresh_token
+from auth.otp import generate_otp, verify_otp
+from services.email_sender import mail_engine
 
 from slowapi import Limiter
 from slowapi.util import get_remote_address
