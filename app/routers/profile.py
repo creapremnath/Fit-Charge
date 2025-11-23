@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Response, Query, Request,UploadFile, File, Depends, Body
 from typing import List
 from sqlmodel import Session, select
-from app.db.database import get_session
-from app.models import users_model
-from app.fc_logger import get_logger
-from app.auth.utils import encrypt_password
-from app.auth.oauth2 import get_current_user
-from app.services.formula import Bodyformula
+from db.database import get_session
+from models import users_model
+from fc_logger import get_logger
+from auth.utils import encrypt_password
+from auth.oauth2 import get_current_user
+from services.formula import Bodyformula
 import os
 import shutil
 import uuid

@@ -1,6 +1,6 @@
 
-from app.config import settings
-from app.fc_logger import get_logger
+from config import settings
+from fc_logger import get_logger
 import time
 from sqlmodel import SQLModel, create_engine, Session
 from sqlalchemy.exc import OperationalError, SQLAlchemyError,ProgrammingError
@@ -11,7 +11,7 @@ import psycopg2
 
 logger = get_logger("fitcharge.database")
 
-from app.config import settings
+from config import settings
 # Replace with your actual credentials
 DATABASE_URL = f"postgresql+psycopg2://{settings.database_user}:{settings.database_password}@{settings.database_host}/{settings.database_name}"
 # logger.info(DATABASE_URL)
