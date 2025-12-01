@@ -109,3 +109,14 @@ def delete_workout(workout_id: int, session: Session = Depends(get_session)):
     session.commit()
     logger.info(f"Workout {workout_id} deleted")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+@router.get("/hello")
+def hello():
+    try:
+        return {"message": "Hello World"}
+    except Exception as e:
+        logger.error(f"Error fetching all users: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching all users: {str(e)}"
+        )
