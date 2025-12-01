@@ -71,3 +71,15 @@ def list_profile(request: Request, session: Session = Depends(get_session)):
             status_code=500,
             detail=f"Error fetching all users: {str(e)}"
         )
+
+@router.get("/hello")
+def hello():
+    return {"message": "Hello World"}
+    try:
+        return {"message": "Hello World"}
+    except Exception as e:
+        logger.error(f"Error fetching all users: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching all users: {str(e)}"
+        )
