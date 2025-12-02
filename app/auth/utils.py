@@ -19,7 +19,7 @@ __desc__ = "Main Program of qtools applications"
 # Import necessary modules
 from passlib.context import CryptContext
 from cryptography.fernet import Fernet
-from config import settings
+from core.config import settings
 
 ################################################################
 key=settings.key

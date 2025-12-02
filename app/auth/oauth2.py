@@ -2,15 +2,11 @@ from jose import jwt, JWTError, ExpiredSignatureError
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from config import settings
-from models.users_model import TokenData
+from core.config import settings
+from api.v1.user.models import TokenData
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 JWT_auth = HTTPBearer()
-
-role_access_exception = HTTPException(
-    status_code=status.HTTP_403_FORBIDDEN,
-    detail="Role access restricted"
-)
 
 def create_access_token(data: dict):
     to_encode = data.copy()
