@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from pydantic import Json
 from api.v1.user.models import User
 from core.database import get_session
 from sqlmodel import Session
@@ -16,40 +17,70 @@ def get_items():
 
 @router.post("/signup")
 def sign_up(request: SignUp, session: Session = Depends(get_session)):
-    existing_user = session.query(User).filter(User.email == request.email, User.is_verified == True).first()
-    not_verified_user = session.query(User).filter(User.email == request.email, User.is_verified == False).first()
-    if existing_user:
-        return JSONResponse(status_code=400, content={"Message": "User Email already exists"})
-    if not_verified_user:
-        return JSONResponse(status_code=400, content={"Message": "Email Id not verified, please verify your email first"})
-    existing_mobile_user = session.query(User).filter(User.mobile == request.mobile, User.is_active == True).first()
-    if existing_mobile_user:
-        return JSONResponse(status_code=400, content={"Message": "Mobile number already exists"})
-        
-    user = User(
-        username=request.username,
-        email=request.email,
-        password=encrypt_password(request.password),
-        gender=request.gender,
-        date_of_birth=request.date_of_birth,
-        age=request.age,
-        height_cm=request.height_cm,
-        weight_kg=request.weight_kg,
-        chest_cm=request.chest_cm,
-        neck_cm=request.neck_cm,
-        biceps_cm=request.biceps_cm,
-        hip_cm=request.hip_cm,
-        waist_cm=request.waist_cm,
-        profile_pic_url=request.profile_pic_url,
-        country_code=request.country_code,
-        mobile=request.mobile,
-        is_active=True,
-        region=request.region,
+    
+    valid_user = session.query(User).filter(User.email == request.email).first()
+    existing_mobile = (
+        session.query(User)
+        .filter(User.mobile == str(request.mobile), User.is_active == True)
+        .first()
     )
-    session.add(user)
-    session.commit()
-    session.refresh(user)
-    return JSONResponse(status_code=200, content={"Message": "Signup successful", "user_id": user.user_id})
+
+    # Email is not pre-verified
+    if not valid_user:
+        return JSONResponse(
+            status_code=400,
+            content={"Message": "Verified Email ID not found"}
+        )
+
+    # User already created + active
+    elif valid_user.is_active == True:
+        return JSONResponse(
+            status_code=400,
+            content={"Message": "User with this Email ID already exists"}
+        )
+
+    # Mobile number already linked to another active user
+    elif existing_mobile:
+        return JSONResponse(
+            status_code=400,
+            content={"Message": "User with this mobile already exists"}
+        )
+
+    # Email verified → Update the existing user instead of creating a new one
+    elif valid_user.is_verified == True:
+        valid_user.username = request.username
+        valid_user.password = encrypt_password(request.password)
+        valid_user.gender = request.gender
+        valid_user.date_of_birth = request.date_of_birth
+        valid_user.age = request.age
+        valid_user.height_cm = request.height_cm
+        valid_user.weight_kg = request.weight_kg
+        valid_user.chest_cm = request.chest_cm
+        valid_user.neck_cm = request.neck_cm
+        valid_user.biceps_cm = request.biceps_cm
+        valid_user.hip_cm = request.hip_cm
+        valid_user.waist_cm = request.waist_cm
+        valid_user.profile_pic_url = request.profile_pic_url
+        valid_user.country_code = request.country_code
+        valid_user.mobile = request.mobile
+        valid_user.is_active = True
+        valid_user.region = request.region
+
+        session.commit()
+        session.refresh(valid_user)
+
+        return JSONResponse(
+            status_code=200,
+            content={"Message": "Signup successful", "user_id": valid_user.user_id}
+        )
+
+    # Email exists but not verified
+    else:
+        return JSONResponse(
+            status_code=400,
+            content={"Message": "Email ID not verified. Please verify before signing up."}
+        )
+
 
 
 @router.post("/logout")

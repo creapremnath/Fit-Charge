@@ -5,7 +5,7 @@ from core.fc_logger import get_logger
 import time
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import OperationalError, SQLAlchemyError, ProgrammingError
+from sqlalchemy.exc import OperationalError
 
 # Import Base from one of your models (example: user model)
 from api.v1.user.models import Base
@@ -14,8 +14,20 @@ logger = get_logger("fitcharge.database")
 
 DATABASE_URL = f"postgresql+psycopg2://{settings.database_user}:{settings.database_password}@{settings.database_host}/{settings.database_name}"
 
-engine = create_engine(DATABASE_URL, echo=True)
-SessionLocal = sessionmaker[Session](autocommit=False, autoflush=False, bind=engine) # type: ignore
+DATABASE_TEST_URL = "sqlite:///./test.db"
+
+# Use SQLAlchemy's connection pooling (the default is QueuePool)
+# You can tune pool_size, max_overflow, and other pool options as needed
+engine = create_engine(
+    DATABASE_URL,
+    echo=True,
+    pool_size=10,              # Number of connections to keep in pool (default 5)
+    max_overflow=20,           # Maximum overflow connections above pool_size (default 10)
+    pool_pre_ping=True,        # Test connections before use
+    pool_timeout=30            # Seconds to wait before giving up on getting a connection
+)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 _db_initialized = False
 
@@ -29,12 +41,12 @@ def init_db():
         logger.info("init_db: Database already initialized.")
 
 def wait_for_db():
-    logger.info("Waiting for database...")
+    logger.info("Waiting for database with connection pool...")
     db_up = False
     while not db_up:
         try:
-            with SessionLocal() as session:
-                session.execute(text("SELECT 1"))
+            with engine.connect() as connection:
+                connection.execute(text("SELECT 1"))
             db_up = True
         except OperationalError as e:
             print(f"Database unavailable, waiting 1 second... ({e})")
@@ -47,3 +59,4 @@ def get_session():
         yield db
     finally:
         db.close()
+
