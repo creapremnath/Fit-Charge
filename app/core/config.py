@@ -22,57 +22,56 @@ Private License (fitcharge)
 ...
 """
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
-
-
-from pydantic_settings import BaseSettings
-from pydantic import Field
+from pathlib import Path
 
 
 class Settings(BaseSettings):
     # Database
-    database_type: str = Field(..., env="DATABASE_TYPE")
-    database_user: str = Field(..., env="DATABASE_USER")
-    database_password: str = Field(..., env="DATABASE_PASSWORD")
-    database_host: str = Field(..., env="DATABASE_HOST")
-    database_port: int = Field(..., env="DATABASE_PORT")
-    database_name: str = Field(..., env="DATABASE_NAME")
+    database_type: str = Field(..., description="Database type")
+    database_user: str = Field(..., description="Database user")
+    database_password: str = Field(..., description="Database password")
+    database_host: str = Field(..., description="Database host")
+    database_port: int = Field(..., description="Database port")
+    database_name: str = Field(..., description="Database name")
 
     # Secrets
-    secret_key: str = Field(..., env="SECRET_KEY")
-    debug: bool = Field(..., env="DEBUG")
+    secret_key: str = Field(..., description="Secret key")
+    debug: bool = Field(..., description="Debug mode")
 
     # Email
-    email_host: str = Field(..., env="EMAIL_HOST")
-    email_port: int = Field(..., env="EMAIL_PORT")
-    email_user: str = Field(..., env="EMAIL_USER")
-    email_password: str = Field(..., env="EMAIL_PASSWORD")
+    email_host: str = Field(..., description="Email host")
+    email_port: int = Field(..., description="Email port")
+    email_user: str = Field(..., description="Email user")
+    email_password: str = Field(..., description="Email password")
 
     # Redis
-    redis_url: str = Field(..., env="REDIS_URL")
+    redis_url: str = Field(..., description="Redis URL")
 
     # Logs
-    logpath: str = Field(..., env="LOGPATH")
-    logfile: str = Field(..., env="LOGFILE")
-    mode: str = Field(..., env="MODE")
-    version: str = Field(..., env="VERSION")
+    logpath: str = Field(..., description="Log path")
+    logfile: str = Field(..., description="Log file")
+    mode: str = Field(..., description="Mode")
+    version: str = Field(..., description="Version")
 
     # JWT
-    algorithm: str = Field(..., env="ALGORITHM")
-    access_token_expire_minutes: int = Field(..., env="ACCESS_TOKEN_EXPIRE_MINUTES")
-    refresh_token_expire_days: int = Field(..., env="REFRESH_TOKEN_EXPIRE_DAYS")
+    algorithm: str = Field(..., description="JWT algorithm")
+    access_token_expire_minutes: int = Field(..., description="Access token expire minutes")
+    refresh_token_expire_days: int = Field(..., description="Refresh token expire days")
 
     # App
-    application_url: str = Field(..., env="APPLICATION_URL")
+    application_url: str = Field(..., description="Application URL")
 
     # Encryption Key
-    key: str = Field(..., env="KEY")
+    key: str = Field(..., description="Encryption key")
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        extra = "ignore"
+    model_config = SettingsConfigDict(
+        env_file=str(Path(__file__).parent.parent.parent / ".env"),
+        env_file_encoding="utf-8",
+        extra="ignore",
+        case_sensitive=False
+    )
 
 
 settings = Settings()
