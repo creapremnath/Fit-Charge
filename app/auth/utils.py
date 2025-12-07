@@ -16,33 +16,132 @@ __email__ = "creativepremnath@gmail.com"
 __status__ = "Development"
 __desc__ = "Main Program of qtools applications"
 
-# Import necessary modules
-from passlib.context import CryptContext
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError, VerificationError
 from cryptography.fernet import Fernet
-from config import settings
+from app.core.config import settings
+from app.core.database import get_session
+from sqlmodel import Session
+from app.api.v1.user.models import User
+import getpass
+import re
 
-################################################################
-key=settings.key
+# -----------------------------------------------------------
+# Utilities
+# -----------------------------------------------------------
 
+key = settings.key
 cipher_suite = Fernet(key)
-
-# Initialize CryptContext
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+ph = PasswordHasher()
 
 def encrypt_password(password: str) -> str:
-    """Encrypt a password using argon2."""
-    return pwd_context.hash(password)
+    return ph.hash(password)
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a password against a hashed password."""
-    return pwd_context.verify(plain_password, hashed_password)
 
-##################################################################
-def data_encrypt(message):
-    """Encrypt a message using Fernet."""
-    return cipher_suite.encrypt(message).decode('utf-8')
+# -----------------------------------------------------------
+# Colors for CLI
+# -----------------------------------------------------------
+RED = "\033[91m"
+GREEN = "\033[92m"
+CYAN = "\033[96m"
+YELLOW = "\033[93m"
+RESET = "\033[0m"
 
-def data_decrypt(encrypted_message):
-    """Decrypt an encrypted message using Fernet."""
-    return cipher_suite.decrypt(encrypted_message)
 
+# -----------------------------------------------------------
+# Email validation
+# -----------------------------------------------------------
+def is_valid_email(email: str) -> bool:
+    pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+    return re.match(pattern, email) is not None
+
+
+# -----------------------------------------------------------
+# Main function
+# -----------------------------------------------------------
+def superadmincreation():
+    """Create a super admin user from the command line."""
+    
+    print(f"{CYAN}Superuser creation utility{RESET}")
+
+    try:
+        session = next(get_session())
+    except Exception as e:
+        print(f"{RED}Error: Unable to initialize database session.{RESET}")
+        print(f"{YELLOW}Details: {e}{RESET}")
+        return
+
+    try:
+        # --------------------------
+        # Email Input
+        # --------------------------
+        email = input("Email: ").strip()
+        if not email:
+            print(f"{RED}Error: Email is required.{RESET}")
+            return
+        
+        if not is_valid_email(email):
+            print(f"{RED}Error: Invalid email format.{RESET}")
+            return
+
+        # Check if exists
+        if session.query(User).filter(User.email == email).first():
+            print(f"{RED}Error: A user with this email already exists.{RESET}")
+            return
+
+        # --------------------------
+        # Username Input
+        # --------------------------
+        username = input("Username: ").strip()
+        if not username:
+            print(f"{RED}Error: Username is required.{RESET}")
+            return
+
+        # --------------------------
+        # Password Input
+        # --------------------------
+        while True:
+            password = getpass.getpass("Password: ")
+            password2 = getpass.getpass("Password (again): ")
+
+            if password != password2:
+                print(f"{RED}Error: Passwords do not match.{RESET}")
+                continue
+
+            if len(password) < 8:
+                print(f"{RED}Error: Password must be at least 8 characters.{RESET}")
+                continue
+
+            break
+
+        # --------------------------
+        # Create User Object
+        # --------------------------
+        user_obj = User(
+            username=username,
+            email=email,
+            password=encrypt_password(password),
+            is_active=True,
+            is_verified=True,
+            role=0,  # superadmin
+        )
+
+        session.add(user_obj)
+
+        try:
+            session.commit()
+            print(
+                f"{GREEN}Superuser created successfully!{RESET} "
+                f"[username: {username}, email: {email}]"
+            )
+        except Exception as e:
+            session.rollback()
+            print(f"{RED}Error: Failed to create user due to a database error.{RESET}")
+            print(f"{YELLOW}Details: {e}{RESET}")
+
+    except Exception as e:
+        print(f"{RED}Unexpected error during superuser creation.{RESET}")
+        print(f"{YELLOW}Details: {e}{RESET}")
+
+    finally:
+        session.close()
