@@ -1,12 +1,12 @@
 from logging.config import fileConfig
-from core.config import settings
+from app.core.config import settings
 
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 # Import all your models' Base objects explicitly
-from api.v1.user.models import Base as UserBase
-# from api.v1.workout.models import Base as WorkoutBase
+from app.api.v1.user.models import Base as UserBase
+from api.v1.workout.models import Base as WorkoutBase
 # from api.v1.food.models import Base as FoodBase
 
 # Compose a proper SQLAlchemy URL with settings, for Alembic to use
@@ -27,7 +27,7 @@ if config.config_file_name is not None:
 # WARNING: Alembic expects a MetaData instance, not a set
 metadatas = [
     UserBase.metadata,
-    # WorkoutBase.metadata,
+    WorkoutBase.metadata,
     # FoodBase.metadata,
 ]
 # If all use the same declarative base, this is a single instance. If not, create a MetaData union.

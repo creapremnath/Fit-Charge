@@ -8,8 +8,11 @@ All rights reserved (c) 2025.
 """
 
 __author__ = "Premnath Palanichamy, Karthikeyan Kabilan"
-__collaborators__ = "Premnath Palanichamy <creativepremnath@gmail.com>, Karthikeyan Kabilan <karthik.codes.dev@gmail.com>"
-__copyright__ = "Copyright 2024, fitcharge"
+__collaborators__ = (
+    "Premnath Palanichamy <creativepremnath@gmail.com>, "
+    "Karthikeyan Kabilan <karthik.codes.dev@gmail.com>"
+)
+__copyright__ = "Copyright 2024, Fitcharge"
 __license__ = "Refer Terms and Conditions"
 __version__ = "1.0"
 __maintainer__ = "Premnath Palanichamy"
@@ -17,17 +20,17 @@ __status__ = "Development"
 __desc__ = "Fitcharge configuration file"
 
 
-f"""
-Private License (fitcharge)
-...
-"""
-
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
 from pathlib import Path
+from pydantic_settings import BaseSettings
+from pydantic import Field, ConfigDict
 
 
 class Settings(BaseSettings):
+    """
+    Application configuration container
+    Values load automatically from environment variables or a `.env` file.
+    """
+
     # Database
     database_type: str = Field(..., description="Database type")
     database_user: str = Field(..., description="Database user")
@@ -52,25 +55,28 @@ class Settings(BaseSettings):
     # Logs
     logpath: str = Field(..., description="Log path")
     logfile: str = Field(..., description="Log file")
-    mode: str = Field(..., description="Mode")
-    version: str = Field(..., description="Version")
+    mode: str = Field(..., description="Application mode")
+    version: str = Field(..., description="Application version")
 
     # JWT
     algorithm: str = Field(..., description="JWT algorithm")
-    access_token_expire_minutes: int = Field(..., description="Access token expire minutes")
-    refresh_token_expire_days: int = Field(..., description="Refresh token expire days")
+    access_token_expire_minutes: int = Field(..., description="Access token expiry (minutes)")
+    refresh_token_expire_days: int = Field(..., description="Refresh token expiry (days)")
 
     # App
-    application_url: str = Field(..., description="Application URL")
+    application_url: str = Field(..., description="Application base URL")
 
     # Encryption Key
     key: str = Field(..., description="Encryption key")
 
-    model_config = SettingsConfigDict(
+    test_database: str = Field(..., description="Test DB")
+
+    # Pydantic v2 config
+    model_config = ConfigDict(
         env_file=str(Path(__file__).parent.parent.parent / ".env"),
         env_file_encoding="utf-8",
+        case_sensitive=False,
         extra="ignore",
-        case_sensitive=False
     )
 
 

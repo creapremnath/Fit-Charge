@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException
-from api.v1.authentication.schemas import OTPRequest, OTPVerify
-from api.v1.user.models import User
-from core.database import get_session
-from auth.otp import generate_otp, verify_otp as otp_verify_func
+from app.api.v1.authentication.schemas import OTPRequest, OTPVerify
+from app.api.v1.user.models import User
+from app.core.database import get_session
+from app.auth.otp import generate_otp, verify_otp as otp_verify_func
 from sqlmodel import Session
 from fastapi.responses import JSONResponse
-from services.email_sender import mail_engine  # Import mail engine
+from app.services.email_sender import mail_engine  # Import mail engine
 
 router = APIRouter(
     tags=["Validation"]

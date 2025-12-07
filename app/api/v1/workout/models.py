@@ -19,11 +19,7 @@ class Workout(Base):
     workout_created_at = Column(DateTime, default=datetime.utcnow)
     workout_updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    workout_logs = relationship(
-        "Workout_log",
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
+    
 
 
 class Workout_log(Base):
@@ -51,3 +47,9 @@ class Workout_log(Base):
     is_failure = Column(Boolean, default=False)
     workout_log_created_at = Column(DateTime, default=datetime.utcnow)
     workout_log_updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # workout_logs = relationship(
+    #     "Workout_log",
+    #     back_populates="user",
+    #     cascade="all, delete-orphan"
+    # )

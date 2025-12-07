@@ -1,6 +1,6 @@
 from typing import Optional
 from sqlmodel import SQLModel, Field, Relationship
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from enum import Enum
 from datetime import datetime
 
@@ -35,27 +35,24 @@ class SignUp(BaseModel):
 
 
 class Refresh_token(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     access_token: str
     token_type: str
 
-    class Config:
-        from_attributes = True
-
 
 class Token(Refresh_token):
+    model_config = ConfigDict(from_attributes=True)
+    
     refresh_token:str
-    class Config:
-        from_attributes = True
 
 
 
 class TokenData(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     user_id:Optional[int]=None
     username: Optional[str]=None
-
-
-    class Config:
-        from_attributes = True
 
 
 

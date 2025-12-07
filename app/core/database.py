@@ -1,20 +1,21 @@
 
 from sqlalchemy.orm.session import Session
-from core.config import settings
-from core.fc_logger import get_logger
+from app.core.config import settings
+from app.core.fc_logger import get_logger
 import time
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import OperationalError
 
 # Import Base from one of your models (example: user model)
-from api.v1.user.models import Base
+from app.api.v1.user.models import Base
+from app.api.v1.workout.models import Base
 
 logger = get_logger("fitcharge.database")
 
 DATABASE_URL = f"postgresql+psycopg2://{settings.database_user}:{settings.database_password}@{settings.database_host}/{settings.database_name}"
 
-DATABASE_TEST_URL = "sqlite:///./test.db"
+TEST_DATABASE_URL = settings.test_database
 
 # Use SQLAlchemy's connection pooling (the default is QueuePool)
 # You can tune pool_size, max_overflow, and other pool options as needed

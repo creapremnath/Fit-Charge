@@ -2,9 +2,8 @@ from jose import jwt, JWTError, ExpiredSignatureError
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from core.config import settings
-from api.v1.user.models import TokenData
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from app.core.config import settings
+from app.api.v1.user.models import TokenData
 
 JWT_auth = HTTPBearer()
 

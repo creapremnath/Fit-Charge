@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends
 from pydantic import Json
-from api.v1.user.models import User
-from core.database import get_session
-from sqlmodel import Session
-from api.v1.authentication.schemas import SignUp
+from app.api.v1.user.models import User
+from app.core.database import get_session
+from sqlalchemy.orm import Session
+from app.api.v1.authentication.schemas import SignUp
 from fastapi.responses import JSONResponse
-from auth.utils import encrypt_password
+from app.auth.utils import encrypt_password
 router = APIRouter(
     tags=["Authentication"]
 )

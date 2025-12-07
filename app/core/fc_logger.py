@@ -20,7 +20,7 @@ __desc__ = "Fitcharge logger configuration"
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from core.config import settings
+from app.core.config import settings
 
 
 def validate_log_dir(logdir: str) -> None:
