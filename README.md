@@ -25,7 +25,7 @@ FitCharge is the ultimate fitness and nutrition tracking app designed to keep yo
 
 cd Fit-charge
 readme
-uvicorn --reload src.main:app
+uvicorn --reload main:app
 
 
 
