@@ -5,6 +5,7 @@ from sqlalchemy import or_
 from datetime import DateTime, date
 from app.core.database import get_session
 from app.api.v1.workout.models import Workout as workout, Workout_log
+from app.api.v1.user.models import User as user
 from app.api.v1.workout.schemas import Workout_logList
 
 router = APIRouter()
@@ -31,11 +32,16 @@ def get_all_workout_logs(
 ):
     query = session.query(Workout_log)
 
+    query = query.join(user, user.user_id == Workout_log.user_id, isrouter = True)
+
     if workout_name:  # workout_name is a list
         query = (
-            query.join(workout, workout.workout_id == Workout_log.workout_id, isouter=True)
+            query
+            .join(workout, workout.workout_id == Workout_log.workout_id, isouter=True)
             .filter(or_(*[workout.workout_name.ilike(f"%{name}%") for name in workout_name]))
         )
+    
+
 
     if primary_muscle:
         query = query.filter(
