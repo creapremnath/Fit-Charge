@@ -28,6 +28,7 @@ class Workout_log(Base):
 
     workout_log_id = Column(Integer, primary_key=True, autoincrement=True)
     workout_id = Column(Integer, ForeignKey("workout.workout_id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("user.user_id", ondelete="CASCADE"), nullable=False)
     workout_date = Column(DateTime, nullable=False)
     tut = Column(Integer, nullable=True)
     rest = Column(Integer, nullable=True)
