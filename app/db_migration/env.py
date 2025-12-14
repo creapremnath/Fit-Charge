@@ -6,7 +6,7 @@ from alembic import context
 
 # Import all your models' Base objects explicitly
 from app.api.v1.user.models import Base as UserBase
-from api.v1.workout.models import Base as WorkoutBase
+from app.api.v1.workout.models import Base as WorkoutBase
 # from api.v1.food.models import Base as FoodBase
 
 # Compose a proper SQLAlchemy URL with settings, for Alembic to use
