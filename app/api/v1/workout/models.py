@@ -1,8 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey
+from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
-from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey
 
 Base = declarative_base()
 
@@ -15,7 +13,7 @@ class Workout(Base):
     workout_description = Column(String, nullable=True)
     primary_muscle = Column(String, nullable = False)
     secondary_muscle = Column(String, nullable = False)
-    met = Column(Integer, nullable = False)
+    met = Column(Float, nullable = False)
     workout_created_at = Column(DateTime, default=datetime.utcnow)
     workout_updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -32,13 +30,12 @@ class Workout_log(Base):
     workout_date = Column(DateTime, nullable=False)
     tut = Column(Integer, nullable=True)
     rest = Column(Integer, nullable=True)
-    rpe = Column(String, nullable=True)
+    rpe = Column(Float, nullable=True)
     sets = Column(Integer, nullable=False)
     reps = Column(Integer, nullable=False)
     weight = Column(Float, nullable=False)
     volume = Column(Float, nullable=False)
     distance = Column(Float, nullable=True)
-    calories = Column(Float, nullable=False)
     workout_type = Column(String, nullable=True)
     is_super_set = Column(Boolean, default=False)
     is_drop_set = Column(Boolean, default=False)
