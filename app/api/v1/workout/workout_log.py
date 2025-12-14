@@ -4,10 +4,10 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_, Float
 from datetime import datetime, date
 from app.core.database import get_session
-from app.api.v1.workout.models import Workout as workout
-from app.api.v1.workout.models import Workout_log as workout_log
-from app.api.v1.user.models import User as user
-from app.api.v1.workout.schemas import WorkoutLogListGet, WorkoutLogListPatch, WorkoutLogListPost
+from .models import Workout as workout
+from .models import Workout_log as workout_log
+from .models import User as user
+from .schemas import WorkoutLogListGet, WorkoutLogListPatch, WorkoutLogListPost
 
 router = APIRouter()
 
