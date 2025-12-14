@@ -1,11 +1,11 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import or_, Float
 
 from app.core.database import get_session
-from app.api.v1.workouts.models import Workout
-from app.api.v1.workouts.schemas import WorkoutList
+from .models import Workout
+from .schemas import WorkoutList
 
 router = APIRouter()
 
