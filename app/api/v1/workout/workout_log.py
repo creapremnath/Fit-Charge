@@ -1,12 +1,14 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, Body
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, Float
+from sqlalchemy import or_, Float, func
 from datetime import datetime, date
 from app.core.database import get_session
-from .models import Workout as workout
-from .models import Workout_log as workout_log
-from .models import User as user
+from .models import Workout as Workout
+from .models import Workout_Log as Workout_Log
+from .models import Workout_Muscle as Workout_Muscle
+from .models import Muscle as Muscle
+from app.api.v1.user.models import User as user
 from .schemas import WorkoutLogListGet, WorkoutLogListPatch, WorkoutLogListPost
 
 router = APIRouter()
@@ -28,53 +30,67 @@ def get_all_workout_logs(
     is_failure: Optional[bool] = Query(None),
     session: Session = Depends(get_session)
 ):
-    query = session.query(Workout_log)
+    query = session.query(Workout_Log)
 
-    query = query.join(user, user.user_id == Workout_log.user_id, isrouter = True)
+    query = query.join(user, user.user_id == Workout_Log.user_id, isrouter = True)
 
     if workout_name or primary_muscle or secondary_muscle:  # workout_name is a list
         query = (
-            query
-            .join(workout, workout.workout_id == Workout_log.workout_id, isouter=True)
+        session.query(
+            Workout.id,
+            Workout.name,
+            Workout.description,
+            Workout.met,
+            func.string_agg(
+                Muscle.name, ', '
+            ).filter(Workout_Muscle.is_primary == True)
+            .label("primary_muscle"),
+            func.string_agg(
+                Muscle.name, ', '
+            ).filter(Workout_Muscle.is_primary == False)
+            .label("secondary_muscle"),
             )
-        
+        .join(Workout_Muscle)
+        .join(Muscle)
+        .group_by(Workout.name)
+        )
         if workout_name: 
-            query = query.filter(or_(*[workout.workout_name.ilike(f"%{name}%") for name in workout_name])
+            query = query.filter(or_(*[Workout.name.ilike(f"%{name}%") for name in workout_name])
     
             )
 
         if primary_muscle:
             query = query.filter(
-                workout.primary_muscle.in_(primary_muscle)
+                Workout.primary_muscle.in_(primary_muscle)
             )
 
         if secondary_muscle:
             query = query.filter(
-                workout.secondary_muscle.in_(secondary_muscle)
+                Workout.secondary_muscle.in_(secondary_muscle)
             )
 
     if workout_type:
         query = query.filter(
-            Workout_log.workout_type.in_(workout_type)
+            Workout_Log.workout_type.in_(workout_type)
         )
 
-    if is_super_set:
-        query = query.filter(Workout_log.is_super_set == is_super_set)
+    '''if is_super_set:
+        query = query.filter(Workout_Log.is_super_set == is_super_set)
 
     if is_drop_set:
-        query = query.filter(Workout_log.is_drop_set == is_drop_set)
+        query = query.filter(Workout_Log.is_drop_set == is_drop_set)
 
     if is_giant_set:
-        query = query.filter(Workout_log.is_giant_set == is_giant_set)
+        query = query.filter(Workout_Log.is_giant_set == is_giant_set)
 
     if is_finisher:
-        query = query.filter(Workout_log.is_finisher == is_finisher)
+        query = query.filter(Workout_Log.is_finisher == is_finisher)
 
     if is_warmup:
-        query = query.filter(Workout_log.is_warmup == is_warmup)
+        query = query.filter(Workout_Log.is_warmup == is_warmup)
 
     if is_failure:
-        query = query.filter(Workout_log.is_failure == is_failure)
+        query = query.filter(Workout_Log.is_failure == is_failure)'''
 
     workout_logs = query.all()
     return workout_logs
