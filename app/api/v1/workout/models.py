@@ -32,7 +32,7 @@ class Workout_Muscle(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     workout_id = Column(Integer, ForeignKey("workout.id", ondelete="CASCADE"), nullable = False)
     muscle_id = Column(Integer, ForeignKey("muscle.id", ondelete="CASCADE"), nullable = False)   
-    is_primary = Column(Boolean, nullable=True) 
+    is_primary_muscle = Column(Boolean, nullable=True) 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

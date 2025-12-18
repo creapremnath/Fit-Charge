@@ -43,11 +43,11 @@ def get_all_workout_logs(
             Workout.met,
             func.string_agg(
                 Muscle.name, ', '
-            ).filter(Workout_Muscle.is_primary == True)
+            ).filter(Workout_Muscle.is_primary_muscle == True)
             .label("primary_muscle"),
             func.string_agg(
                 Muscle.name, ', '
-            ).filter(Workout_Muscle.is_primary == False)
+            ).filter(Workout_Muscle.is_primary_muscle == False)
             .label("secondary_muscle"),
             )
         .join(Workout_Muscle)
