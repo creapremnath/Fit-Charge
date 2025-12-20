@@ -48,11 +48,14 @@ class Token(Refresh_token):
 
 
 
+
+
+
 class TokenData(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
     user_id:Optional[int]=None
     username: Optional[str]=None
+    role: Optional[int]=None
 
 
 
@@ -63,3 +66,15 @@ class OTPRequest(BaseModel):
 class OTPVerify(BaseModel):
     email: EmailStr
     otp:int
+
+
+class SSOLoginResponse(BaseModel):
+    authorization_url: str
+    message: str = "Redirect to this URL to initiate Google OAuth login"
+
+
+class SSOCallbackResponse(BaseModel):
+    message: str
+    access_token: str
+    refresh_token: str
+    user_id: Optional[int] = None

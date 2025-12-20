@@ -21,9 +21,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.orm.collections import prepare_instrumentation
 from app.core.database import wait_for_db,init_db
 from app.core.fc_logger import get_logger
+from app.core.config import settings
 from app.api.v1.authentication.routes import router as auth_router
 from app.api.v1.food.routes import router as food_router
 from app.api.v1.user.routes import router as user_router
@@ -54,6 +56,9 @@ app = FastAPI(
 )
 
 origins=["*"]
+
+# Session middleware is REQUIRED for OAuth SSO (authlib uses sessions internally)
+app.add_middleware(SessionMiddleware, secret_key=settings.secret_key)
 
 app.add_middleware(
     CORSMiddleware,

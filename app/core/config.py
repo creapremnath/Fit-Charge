@@ -71,6 +71,10 @@ class Settings(BaseSettings):
 
     test_database: str = Field(..., description="Test DB")
 
+    # Oauth2 SSO
+    client_id: str = Field(..., description="SSO client ID")
+    client_secret: str = Field(..., description="SSO client secret")
+
     # Pydantic v2 config
     model_config = ConfigDict(
         env_file=str(Path(__file__).parent.parent.parent / ".env"),
