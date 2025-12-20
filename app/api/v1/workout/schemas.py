@@ -6,11 +6,12 @@ from datetime import datetime
 from sqlalchemy import Float
 
 
-class WorkoutList(BaseModel):
+class WorkoutListGet(BaseModel):
+    workout_id: int
     workout_name: str
     workout_description: Optional[str] = None
-    primary_muscle: str
-    secondary_muscle: Optional[str] = None
+    primary_muscle: Optional[list] = None
+    secondary_muscle: Optional[list] = None
     met: Optional[float] = None
     workout_created_at: Optional[datetime] = None
     workout_updated_at: Optional[datetime] = None

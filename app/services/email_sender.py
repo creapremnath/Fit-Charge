@@ -7,7 +7,9 @@ from app.core.config import settings
 
 
 # Set up Jinja2 environment
-templates_dir = os.path.join(os.getcwd(), "mail_templates")
+# Get the directory of this file (app/services), go up to app/, then to mail_templates
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+templates_dir = os.path.join(base_dir, "mail_templates")
 env = Environment(loader=FileSystemLoader(templates_dir))
 
 class MailEngine:

@@ -3,21 +3,22 @@ from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.config import settings
-from app.api.v1.user.models import TokenData
+from app.api.v1.authentication.schemas import TokenData
+from typing import List
 
 JWT_auth = HTTPBearer()
 
 def create_access_token(data: dict):
     to_encode = data.copy()
     expire_time = datetime.utcnow() + timedelta(minutes=settings.access_token_expire_minutes)
-    to_encode.update({"exp": expire_time})
+    to_encode.update({"exp": expire_time, "token_type": "access_token"})
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
     return encoded_jwt
 
 def create_refresh_token(data: dict):
     to_encode = data.copy()
     expire_time = datetime.utcnow() + timedelta(days=settings.refresh_token_expire_days)
-    to_encode.update({"exp": expire_time})
+    to_encode.update({"exp": expire_time, "token_type": "refresh_token"})
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
     return encoded_jwt
 
@@ -26,12 +27,13 @@ def verify_access_token(token: str, credentials_exception):
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
         user_id: int = payload.get("user_id")
         username: str = payload.get("username")
+        role: int = payload.get("role")
         token_type: str = payload.get("token_type")
 
         if user_id is None or token_type == "refresh_token":
             raise credentials_exception
 
-        token_data = TokenData(user_id=user_id, username=username)
+        token_data = TokenData(user_id=user_id, username=username, role=role)
     except ExpiredSignatureError:
         raise credentials_exception
     except JWTError:
@@ -54,6 +56,7 @@ def verify_refresh_token(token: str):
         token_type: str = payload.get("token_type")
         username: str = payload.get("username")
         user_id: int = payload.get("user_id")
+        role: int = payload.get("role")
 
         if user_id is None or token_type == "access_token":
             raise HTTPException(
@@ -62,7 +65,7 @@ def verify_refresh_token(token: str):
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        token_data = TokenData(user_id=user_id, username=username)
+        token_data = TokenData(user_id=user_id, username=username, role=role)
     except ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -77,3 +80,16 @@ def verify_refresh_token(token: str):
         )
 
     return token_data
+
+
+
+
+def require_roles(allowed_roles: List[int]):
+    def role_checker(current_user: TokenData = Depends(get_current_user)):
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to perform this action"
+            )
+        return current_user
+    return role_checker
