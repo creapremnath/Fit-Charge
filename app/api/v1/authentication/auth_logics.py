@@ -3,16 +3,42 @@ from pydantic import Json
 from app.api.v1.user.models import User
 from app.core.database import get_session
 from sqlalchemy.orm import Session
-from app.api.v1.authentication.schemas import SignUp
+from app.api.v1.authentication.schemas import SignUp, LoginRequest
 from fastapi.responses import JSONResponse
-from app.auth.utils import encrypt_password
+from app.auth.utils import encrypt_password, verify_password
+from app.auth.oauth2 import create_access_token, create_refresh_token, verify_refresh_token
 router = APIRouter(
     tags=["Authentication"]
 )
 
 @router.post("/login")
-def get_items():
-    return {"Message":"Login routes"}
+def login(request: LoginRequest, session: Session = Depends(get_session)):
+    valid_user = session.query(User).filter(User.email == request.email, User.is_active == True, User.is_verified == True).first()
+    if not valid_user:
+        return JSONResponse(
+            status_code=400,
+            content={"Message": "Verified Email ID not found"}
+        )
+    if not verify_password(valid_user.password, request.password):
+        return JSONResponse(
+            status_code=400,
+            content={"Message": "Invalid password"}
+        )
+
+    user_data = {
+        "user_id": valid_user.user_id,
+        "username": valid_user.username,
+        "email": valid_user.email,
+        "role": valid_user.role,
+    }
+    access_token = create_access_token(user_data)
+    refresh_token = create_refresh_token(user_data)
+    return JSONResponse(
+        status_code=200,
+        content={"Message": "Login successful", "access_token": access_token, "refresh_token": refresh_token}
+    )
+
+
 
 
 @router.post("/signup")
@@ -89,8 +115,18 @@ def logout():
 
 
 @router.post("/refresh-token")
-def refresh_token():
-    return {"Message":"Refresh token routes"}
+def refresh_token(Token: str):
+    token_data = verify_refresh_token(Token)
+    user_data = {
+        "user_id": token_data.user_id,
+        "username": token_data.username,
+        "role": token_data.role,
+    }
+    new_access_token = create_access_token(user_data)
+    return JSONResponse(
+        status_code=200,
+        content={"Message":"New access token generated", "access_token": new_access_token}
+    )
 
 
 @router.post("/forgot-password")

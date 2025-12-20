@@ -9,12 +9,13 @@ from app.core.database import get_session
 from .models import Workout, Muscle, Workout_Muscle
 from .schemas import WorkoutListGet
 from app.core.fc_logger import get_logger
+from app.auth.oauth2 import get_current_user
 
 logger = get_logger("fitcharge.workout")
 
 router = APIRouter()
 
-@router.get("/workouts", response_model=list[WorkoutListGet])
+@router.get("/workouts", response_model=list[WorkoutListGet],dependencies=[Depends(get_current_user)])
 def get_all_workouts(
     workout_name: Optional[List[str]] = Query(None),
     primary_muscle: Optional[List[str]] = Query(None),
