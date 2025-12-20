@@ -18,7 +18,7 @@ router = APIRouter()
 
 @router.get("/workouts", 
             response_model=list[WorkoutListGet],
-            dependencies=[Depends(require_roles([0]))]#Added by Premnath for user role 3 only, o is only for superadmin, others users should have 1 as role)
+            dependencies=[Depends(require_roles([0]))] #Added by Premnath for user role 3 only, o is only for superadmin, others users should have 1 as role)
 )
 def get_all_workouts(
     workout_name: Optional[List[str]] = Query(None),
