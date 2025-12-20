@@ -48,9 +48,11 @@ class Token(Refresh_token):
 
 
 
+
+
+
 class TokenData(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
     user_id:Optional[int]=None
     username: Optional[str]=None
     role: Optional[int]=None

@@ -9,19 +9,26 @@ from app.core.database import get_session
 from .models import Workout, Muscle, Workout_Muscle
 from .schemas import WorkoutListGet
 from app.core.fc_logger import get_logger
-from app.auth.oauth2 import get_current_user
+from app.auth.oauth2 import get_current_user, require_roles
+from app.api.v1.authentication.schemas import TokenData
 
 logger = get_logger("fitcharge.workout")
 
 router = APIRouter()
 
-@router.get("/workouts", response_model=list[WorkoutListGet],dependencies=[Depends(get_current_user)])
+@router.get("/workouts", 
+            response_model=list[WorkoutListGet],
+            dependencies=[Depends(require_roles([0]))]#Added by Premnath for user role 3 only, o is only for superadmin, others users should have 1 as role)
+)
 def get_all_workouts(
     workout_name: Optional[List[str]] = Query(None),
     primary_muscle: Optional[List[str]] = Query(None),
     secondary_muscle: Optional[List[str]] = Query(None),
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    current_user: TokenData = Depends(get_current_user),#Added by Premnath
 ):
+    print(f"Current user: {current_user}")  #Added by Premnath
+    print(f"User ID: {current_user.user_id}, Username: {current_user.username}")  #Added by Premnath
 
     if workout_name is not None:
         workout_name = [name.lower() for name in workout_name]
@@ -77,4 +84,15 @@ def get_all_workouts(
             content={"message": "No matching workouts found"}
         )
 
-    return workouts
+    # return workouts
+
+############# Added by Premnath ############
+    return JSONResponse(
+        status_code=200,
+        content={
+            "status_code": 200,
+            "status_message":"success",
+            "message": "Workouts fetched successfully", 
+            "workouts": [dict(workout) for workout in workouts]}
+    )
+############# Added by Premnath ############

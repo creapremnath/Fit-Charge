@@ -28,7 +28,6 @@ def login(request: LoginRequest, session: Session = Depends(get_session)):
     user_data = {
         "user_id": valid_user.user_id,
         "username": valid_user.username,
-        "email": valid_user.email,
         "role": valid_user.role,
     }
     access_token = create_access_token(user_data)
@@ -115,7 +114,7 @@ def logout():
 
 
 @router.post("/refresh-token")
-def refresh_token(Token: str):
+def refresh_token(Token:str):
     token_data = verify_refresh_token(Token)
     user_data = {
         "user_id": token_data.user_id,

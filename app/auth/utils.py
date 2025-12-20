@@ -39,13 +39,10 @@ def encrypt_password(password: str) -> str:
 
 
 def verify_password(hashed_password: str, password: str) -> bool:
-    return ph.verify(hashed_password, password)
-
-
-
-
-
-
+    try:
+        return ph.verify(hashed_password, password)
+    except (VerifyMismatchError, VerificationError):
+        return False
 
 # -----------------------------------------------------------
 # Colors for CLI
