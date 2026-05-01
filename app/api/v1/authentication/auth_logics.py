@@ -4,10 +4,12 @@ from app.api.v1.user.models import User
 from app.core.database import get_session
 from sqlalchemy.orm import Session
 from app.api.v1.authentication.schemas import SignUp, LoginRequest, SSOLoginResponse, SSOCallbackResponse
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from app.auth.utils import encrypt_password, verify_password
 from app.auth.oauth2 import create_access_token, create_refresh_token, verify_refresh_token
 from app.core.config import settings
+import os
+from urllib.parse import urlparse
 
 
 from google.oauth2 import id_token
@@ -149,13 +151,61 @@ import time
 # Simple in-memory state store (DEV / single-instance)
 OAUTH_STATE_STORE = {}
 STATE_TTL_SECONDS = 300  # 5 minutes
+ALLOWED_SSO_REDIRECT_URIS = {
+    "fitcharge://sso-callback",
+    "http://localhost:8000/sso-callback",
+}
+ENV_DEFAULT_SSO_REDIRECT_URIS = {
+    "DEV": "http://localhost:8000/sso-callback",
+    "LOCAL": "fitcharge://sso-callback",
+    "PRO": "fitcharge://sso-callback",
+}
+
+
+def get_default_sso_redirect_uri() -> str:
+    env = os.getenv("ENV", "LOCAL").upper()
+    return ENV_DEFAULT_SSO_REDIRECT_URIS.get(env, "fitcharge://sso-callback")
+
+
+def is_valid_sso_redirect_uri(redirect_uri: str) -> bool:
+    """Validate mobile/web SSO redirect URI in a safe allowlist-friendly way."""
+    if not redirect_uri:
+        return False
+
+    if redirect_uri in ALLOWED_SSO_REDIRECT_URIS:
+        return True
+
+    try:
+        parsed = urlparse(redirect_uri)
+        scheme = (parsed.scheme or "").lower()
+        path = parsed.path or ""
+    except Exception:
+        return False
+
+    # Expo Go deep links usually look like:
+    # exp://<ip>:8081/--/sso-callback
+    # Allow only this strict callback path shape.
+    if scheme in {"exp", "exps"}:
+        normalized_path = path.rstrip("/")
+        return normalized_path.endswith("/--/sso-callback")
+
+    return False
 
 
 @router.get("/sso-login", response_model=SSOLoginResponse)
-async def sso_login(request: Request):
+async def sso_login(request: Request, redirect_uri: str | None = None):
     try:
         from urllib.parse import urlencode
         import secrets
+
+        # Choose default callback based on ENV when client does not pass redirect_uri.
+        resolved_redirect_uri = redirect_uri or get_default_sso_redirect_uri()
+
+        if not is_valid_sso_redirect_uri(resolved_redirect_uri):
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={"Message": "Invalid redirect_uri"}
+            )
 
         base_url = str(request.base_url).rstrip('/')
         callback_url = f"{base_url}/api/v1/sso-callback"
@@ -163,8 +213,11 @@ async def sso_login(request: Request):
         # Generate state
         state = secrets.token_urlsafe(32)
 
-        # ✅ STORE STATE SERVER-SIDE (NOT SESSION)
-        OAUTH_STATE_STORE[state] = time.time()
+        # Store one-time state metadata server-side.
+        OAUTH_STATE_STORE[state] = {
+            "created_at": time.time(),
+            "redirect_uri": resolved_redirect_uri,
+        }
 
         auth_endpoint = "https://accounts.google.com/o/oauth2/v2/auth"
         params = {
@@ -201,13 +254,22 @@ async def sso_callback(request: Request, session: Session = Depends(get_session)
             content={"Message": "OAuth error: Missing state or code"}
         )
 
-    # ✅ VERIFY STATE FROM SERVER STORE
-    state_time = OAUTH_STATE_STORE.pop(received_state, None)
-    if not state_time or time.time() - state_time > STATE_TTL_SECONDS:
+    # VERIFY AND POP ONE-TIME STATE FROM SERVER STORE
+    state_payload = OAUTH_STATE_STORE.pop(received_state, None)
+    if not state_payload:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={"Message": "OAuth error: mismatching_state or expired state"}
         )
+
+    state_created_at = state_payload.get("created_at")
+    if not state_created_at or time.time() - state_created_at > STATE_TTL_SECONDS:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"Message": "OAuth error: mismatching_state or expired state"}
+        )
+
+    redirect_uri = state_payload.get("redirect_uri")
 
     try:
         import httpx
@@ -273,10 +335,34 @@ async def sso_callback(request: Request, session: Session = Depends(get_session)
             "role": user.role,
         }
 
+        access_token = create_access_token(user_data)
+        refresh_token = create_refresh_token(user_data)
+
+        # Mobile/app flow: redirect back to allowlisted deep link with tokens.
+        if redirect_uri:
+            from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+
+            parsed_redirect = urlsplit(redirect_uri)
+            query_pairs = parse_qsl(parsed_redirect.query, keep_blank_values=True)
+            query_pairs.extend([
+                ("message", "SSO login successful"),
+                ("access_token", access_token),
+                ("refresh_token", refresh_token),
+                ("user_id", str(user.user_id)),
+            ])
+            final_redirect_url = urlunsplit((
+                parsed_redirect.scheme,
+                parsed_redirect.netloc,
+                parsed_redirect.path,
+                urlencode(query_pairs),
+                parsed_redirect.fragment,
+            ))
+            return RedirectResponse(url=final_redirect_url, status_code=status.HTTP_302_FOUND)
+
         return SSOCallbackResponse(
             message="SSO login successful",
-            access_token=create_access_token(user_data),
-            refresh_token=create_refresh_token(user_data),
+            access_token=access_token,
+            refresh_token=refresh_token,
             user_id=user.user_id,
         )
 
