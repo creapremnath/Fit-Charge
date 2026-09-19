@@ -1,8 +1,10 @@
 import os
 import smtplib
 import ssl
+import logging
 from email.message import EmailMessage
 from jinja2 import Environment, FileSystemLoader
+import certifi
 from app.core.config import settings
 
 
@@ -11,6 +13,7 @@ from app.core.config import settings
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 templates_dir = os.path.join(base_dir, "mail_templates")
 env = Environment(loader=FileSystemLoader(templates_dir))
+logger = logging.getLogger(__name__)
 
 class MailEngine:
     def __init__(self, sender_email, sender_password):
@@ -25,13 +28,32 @@ class MailEngine:
         em['Subject'] = subject
         em.set_content(html_content, subtype='html')
 
-        # Set up the SSL context
-        context = ssl.create_default_context()
+        # Use certifi CA bundle to avoid platform trust-store issues.
+        context = ssl.create_default_context(cafile=certifi.where())
 
-        # Send the email using Gmail's SMTP server
-        with smtplib.SMTP_SSL(settings.email_host,settings.email_port, context=context) as smtp:
-            smtp.login(self.email_sender, self.email_password)
-            smtp.sendmail(self.email_sender, receiver_email, em.as_string())
+        try:
+            if settings.email_port == 587:
+                # STARTTLS flow (commonly used on 587).
+                with smtplib.SMTP(settings.email_host, settings.email_port) as smtp:
+                    smtp.ehlo()
+                    smtp.starttls(context=context)
+                    smtp.ehlo()
+                    smtp.login(self.email_sender, self.email_password)
+                    smtp.sendmail(self.email_sender, receiver_email, em.as_string())
+            else:
+                # Implicit SSL flow (commonly used on 465).
+                with smtplib.SMTP_SSL(settings.email_host, settings.email_port, context=context) as smtp:
+                    smtp.login(self.email_sender, self.email_password)
+                    smtp.sendmail(self.email_sender, receiver_email, em.as_string())
+        except ssl.SSLCertVerificationError:
+            # Local/dev fallback for machines with broken root cert setup.
+            if not settings.debug:
+                raise
+            logger.warning("SSL certificate verification failed; retrying with unverified SSL context in debug mode.")
+            insecure_context = ssl._create_unverified_context()
+            with smtplib.SMTP_SSL(settings.email_host, settings.email_port, context=insecure_context) as smtp:
+                smtp.login(self.email_sender, self.email_password)
+                smtp.sendmail(self.email_sender, receiver_email, em.as_string())
 
     def send_otp_email(self, receiver_email, otp):
         subject = 'Your OTP Verification Code'

@@ -1,8 +1,8 @@
 from typing import Optional
-from sqlmodel import SQLModel, Field, Relationship
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from enum import Enum
 from datetime import datetime
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
+
 
 
 

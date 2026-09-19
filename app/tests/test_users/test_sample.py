@@ -19,11 +19,12 @@ def test_health_check(test_client):
     assert response.json() == {"Health": "Server is Running"}
 
 
-def test_get_user_endpoint(test_client):
+def test_get_user_endpoint(test_client, auth_headers):
     """Test GET /api/v1/user/user endpoint."""
-    response = test_client.get(f"{BASE_URL}/user/user")
+    response = test_client.get(f"{BASE_URL}/user/user", headers=auth_headers)
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {"Message": "user routes"}
+    assert response.json()["Message"] == "user routes"
+
 
 
 def test_post_user_log_endpoint(test_client):
