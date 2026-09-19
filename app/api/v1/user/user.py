@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from starlette.concurrency import run_in_threadpool
 from sqlalchemy.orm import Session
 from app.core.database import get_session
 from app.auth.oauth2 import get_current_user
@@ -256,7 +257,8 @@ async def upload_user_profile_pic(
         raise HTTPException(status_code=400, detail="Empty file uploaded")
 
     content_type = file.content_type or "image/jpeg"
-    upload_result = upload_profile_image(
+    upload_result = await run_in_threadpool(
+        upload_profile_image,
         file_bytes=file_bytes,
         content_type=content_type,
         user_id=user.user_id,
