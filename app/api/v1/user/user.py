@@ -1,9 +1,10 @@
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from app.core.database import get_session
 from app.auth.oauth2 import get_current_user
 from app.api.v1.authentication.schemas import TokenData
+from app.services.cloudinary_service import upload_profile_image
 from .models import User, User_log, UserSettings
 from .schemas import UserOnboardingRequest, UserProfileUpdate
 
@@ -235,3 +236,46 @@ def get_all_users(
             for user in users
         ],
     }
+
+
+@router.post("/upload-profile-pic")
+async def upload_user_profile_pic(
+    file: UploadFile = File(...),
+    current_user: TokenData = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    """
+    Upload a new profile picture to Cloudinary and update the user's profile_pic_url.
+    """
+    user = session.query(User).filter(User.user_id == current_user.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    file_bytes = await file.read()
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="Empty file uploaded")
+
+    content_type = file.content_type or "image/jpeg"
+    upload_result = upload_profile_image(
+        file_bytes=file_bytes,
+        content_type=content_type,
+        user_id=user.user_id,
+        filename=file.filename or "avatar.jpg",
+    )
+
+    user.profile_pic_url = upload_result["secure_url"]
+    user.updated_at = datetime.now(timezone.utc)
+    session.commit()
+    session.refresh(user)
+
+    return {
+        "status_code": 200,
+        "message": "Profile picture uploaded successfully",
+        "data": {
+            "user_id": user.user_id,
+            "username": user.username,
+            "profile_pic_url": user.profile_pic_url,
+            "cloudinary_details": upload_result,
+        },
+    }
+
