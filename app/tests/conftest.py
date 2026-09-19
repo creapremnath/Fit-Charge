@@ -2,9 +2,11 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.core.database import get_session
+from app.core.database import get_session, Base
+import app.api.v1.user.models  # noqa: F401
+import app.api.v1.workout.models  # noqa: F401
+import app.api.v1.food.models  # noqa: F401
 from app.main import app
-from app.api.v1.user.models import Base
 
 # Use SQLite in-memory database for testing (no external DB required)
 TEST_DATABASE_URL = "sqlite:///:memory:"
@@ -27,6 +29,7 @@ def setup_test_database():
     # Drop tables after tests are done
     Base.metadata.drop_all(bind=test_engine)
 
+
 @pytest.fixture
 def test_db_session():
     """Yields a new db session to the test DB, for db-dependent test code.
@@ -47,6 +50,13 @@ def test_db_session():
         except Exception:
             pass  # Transaction may already be rolled back
         connection.close()
+
+from app.auth.oauth2 import create_access_token
+
+@pytest.fixture
+def auth_headers():
+    token = create_access_token({"user_id": 1, "username": "testuser", "role": 1})
+    return {"Authorization": f"Bearer {token}"}
 
 @pytest.fixture
 def test_client(test_db_session):

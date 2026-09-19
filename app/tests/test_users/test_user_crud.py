@@ -20,11 +20,12 @@ BASE_URL = "/api/v1"
 class TestUserRoutes:
     """Test cases for user routes endpoints."""
 
-    def test_get_user_route(self, test_client):
+    def test_get_user_route(self, test_client, auth_headers):
         """Test the GET /user/user endpoint."""
-        response = test_client.get(f"{BASE_URL}/user/user")
+        response = test_client.get(f"{BASE_URL}/user/user", headers=auth_headers)
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == {"Message": "user routes"}
+        assert response.json()["Message"] == "user routes"
+
 
     def test_post_user_log_route(self, test_client):
         """Test the POST /user/user-log endpoint."""

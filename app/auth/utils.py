@@ -19,12 +19,13 @@ __desc__ = "Main Program of qtools applications"
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, VerificationError
 from cryptography.fernet import Fernet
+from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import get_session
-from sqlmodel import Session
 from app.api.v1.user.models import User
 import getpass
 import re
+
 
 # -----------------------------------------------------------
 # Utilities

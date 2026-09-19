@@ -4,10 +4,11 @@ from app.core.config import settings
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
-# Import all your models' Base objects explicitly
-from app.api.v1.user.models import Base as UserBase
-from app.api.v1.workout.models import Base as WorkoutBase
-# from api.v1.food.models import Base as FoodBase
+# Import central Base and all model modules to register tables
+from app.core.database import Base
+import app.api.v1.user.models  # noqa: F401
+import app.api.v1.workout.models  # noqa: F401
+import app.api.v1.food.models  # noqa: F401
 
 # Compose a proper SQLAlchemy URL with settings, for Alembic to use
 DATABASE_URL = (
@@ -23,21 +24,9 @@ config.set_main_option("sqlalchemy.url", DATABASE_URL)
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Aggregate all relevant model metadatas as target_metadata for autogenerate
-# WARNING: Alembic expects a MetaData instance, not a set
-metadatas = [
-    UserBase.metadata,
-    WorkoutBase.metadata,
-    # FoodBase.metadata,
-]
-# If all use the same declarative base, this is a single instance. If not, create a MetaData union.
-# We'll combine all those tables in a dynamic MetaData (useful for autogenerate with multiple bases)
-from sqlalchemy import MetaData
-target_metadata = MetaData()
-for meta in metadatas:
-    for table in meta.tables.values():
-        if table.name not in target_metadata.tables:
-            table.tometadata(target_metadata)
+# Set target_metadata to central Base metadata for autogenerate
+target_metadata = Base.metadata
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""

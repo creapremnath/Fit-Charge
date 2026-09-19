@@ -1,5 +1,5 @@
 from jose import jwt, JWTError, ExpiredSignatureError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.config import settings
@@ -10,17 +10,18 @@ JWT_auth = HTTPBearer()
 
 def create_access_token(data: dict):
     to_encode = data.copy()
-    expire_time = datetime.utcnow() + timedelta(minutes=settings.access_token_expire_minutes)
+    expire_time = datetime.now(timezone.utc) + timedelta(minutes=settings.access_token_expire_minutes)
     to_encode.update({"exp": expire_time, "token_type": "access_token"})
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
     return encoded_jwt
 
 def create_refresh_token(data: dict):
     to_encode = data.copy()
-    expire_time = datetime.utcnow() + timedelta(days=settings.refresh_token_expire_days)
+    expire_time = datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_days)
     to_encode.update({"exp": expire_time, "token_type": "refresh_token"})
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
     return encoded_jwt
+
 
 def verify_access_token(token: str, credentials_exception):
     try:

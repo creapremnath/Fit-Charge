@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Response,Query
-from typing import List,Optional
-from sqlmodel import Session, select
-from db.database import get_session
-from models.workouts_model import Workout
-from fc_logger import get_logger
+from typing import List, Optional
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+from app.core.database import get_session
+from app.api.v1.workout.models import Workout
+from app.core.fc_logger import get_logger
+
 
 # Initialize logger
 logger = get_logger("routers.workout")

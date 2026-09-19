@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Response, Query, Request
 from typing import List
-from sqlmodel import Session, select
-from db.database import get_session
-from models import users_model
-from fc_logger import get_logger
-from auth.utils import encrypt_password
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+from app.core.database import get_session
+from app.core.fc_logger import get_logger
+from app.auth.utils import encrypt_password
+
 
 from slowapi import Limiter
 from slowapi.util import get_remote_address
