@@ -148,6 +148,7 @@ def upload_profile_image(
             public_id=public_id,
             overwrite=True,
             resource_type="image",
+            timeout=30,
             transformation=[
                 {
                     "width": 800,
