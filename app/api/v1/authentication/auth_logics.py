@@ -133,17 +133,8 @@ def logout():
 
 
 @router.post("/refresh-token")
-def refresh_token(Token: str = None, request_data: dict = None):
-    token_str = Token
-    if not token_str and request_data:
-        token_str = request_data.get("refresh_token") or request_data.get("Token") or request_data.get("token")
-    if not token_str:
-        return JSONResponse(
-            status_code=400,
-            content={"Message": "Refresh token is required"}
-        )
-    try:
-        token_data = verify_refresh_token(token_str)
+def refresh_token(Token:str):
+    token_data = verify_refresh_token(Token)
         user_data = {
             "user_id": token_data.user_id,
             "username": token_data.username,
@@ -152,17 +143,7 @@ def refresh_token(Token: str = None, request_data: dict = None):
         new_access_token = create_access_token(user_data)
         return JSONResponse(
             status_code=200,
-            content={"Message": "New access token generated", "access_token": new_access_token}
-        )
-    except HTTPException as e:
-        return JSONResponse(
-            status_code=e.status_code,
-            content={"Message": e.detail}
-        )
-    except Exception as e:
-        return JSONResponse(
-            status_code=401,
-            content={"Message": f"Invalid or expired refresh token: {str(e)}"}
+        content={"Message":"New access token generated", "access_token": new_access_token}
         )
 
 import time
