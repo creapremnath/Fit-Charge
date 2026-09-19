@@ -21,6 +21,7 @@ __desc__ = "Fitcharge configuration file"
 
 
 from pathlib import Path
+from typing import Optional
 from pydantic_settings import BaseSettings
 from pydantic import Field, ConfigDict
 
@@ -74,6 +75,11 @@ class Settings(BaseSettings):
     # Oauth2 SSO
     client_id: str = Field(..., description="SSO client ID")
     client_secret: str = Field(..., description="SSO client secret")
+
+    # Cloudinary Configuration
+    cloudinary_cloud_name: Optional[str] = Field(None, description="Cloudinary cloud name")
+    cloudinary_api_key: Optional[str] = Field(None, description="Cloudinary API key")
+    cloudinary_api_secret: Optional[str] = Field(None, description="Cloudinary API secret")
 
     # Pydantic v2 config
     model_config = ConfigDict(

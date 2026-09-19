@@ -135,16 +135,16 @@ def logout():
 @router.post("/refresh-token")
 def refresh_token(Token:str):
     token_data = verify_refresh_token(Token)
-        user_data = {
-            "user_id": token_data.user_id,
-            "username": token_data.username,
-            "role": token_data.role,
-        }
-        new_access_token = create_access_token(user_data)
-        return JSONResponse(
-            status_code=200,
+    user_data = {
+        "user_id": token_data.user_id,
+        "username": token_data.username,
+        "role": token_data.role,
+    }
+    new_access_token = create_access_token(user_data)
+    return JSONResponse(
+        status_code=200,
         content={"Message":"New access token generated", "access_token": new_access_token}
-        )
+    )
 
 import time
 
