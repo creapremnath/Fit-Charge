@@ -48,6 +48,52 @@ def init_cloudinary():
 init_cloudinary()
 
 
+def is_valid_image(file_bytes: bytes, content_type: str = "", filename: str = "") -> bool:
+    """Check whether the uploaded content is a valid image using magic header bytes, content type, or extension."""
+    if not file_bytes:
+        return False
+
+    clean_ct = (content_type or "").split(";")[0].strip().lower()
+
+    # If content_type is explicitly a non-image MIME type (e.g. text/plain, application/pdf)
+    if (
+        clean_ct
+        and not clean_ct.startswith("image/")
+        and clean_ct not in ("application/octet-stream", "binary/octet-stream")
+    ):
+        return False
+
+    # 1. Check magic header bytes (most reliable across mobile devices)
+    if len(file_bytes) >= 4:
+        # JPEG: FF D8 FF
+        if file_bytes[:3] == b"\xff\xd8\xff":
+            return True
+        # PNG: 89 50 4E 47
+        if file_bytes[:4] == b"\x89PNG":
+            return True
+        # GIF: GIF8
+        if file_bytes[:4] in (b"GIF8", b"GIF7"):
+            return True
+        # WEBP: RIFF....WEBP
+        if file_bytes[:4] == b"RIFF" and len(file_bytes) >= 12 and file_bytes[8:12] == b"WEBP":
+            return True
+        # HEIC / HEIF / AVIF
+        if len(file_bytes) >= 12 and b"ftyp" in file_bytes[:16]:
+            return True
+
+    # 2. Check known MIME types
+    if clean_ct.startswith("image/"):
+        return True
+
+    # 3. Check filename extension if content type was generic octet-stream
+    if filename and "." in filename:
+        ext = filename.lower().split(".")[-1]
+        if ext in ("jpg", "jpeg", "png", "webp", "heic", "heif", "gif", "bmp", "svg"):
+            return True
+
+    return False
+
+
 def upload_profile_image(
     file_bytes: bytes,
     content_type: str,
@@ -85,10 +131,10 @@ def upload_profile_image(
             detail=f"Image size exceeds the maximum allowed limit of {MAX_FILE_SIZE_BYTES // (1024 * 1024)}MB."
         )
 
-    if content_type and content_type.lower() not in ALLOWED_IMAGE_TYPES:
+    if not is_valid_image(file_bytes, content_type, filename):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Unsupported image type: {content_type}. Allowed types: JPEG, PNG, WEBP, HEIC."
+            detail=f"Unsupported image type: {content_type or 'unknown'}. Allowed types: JPEG, PNG, WEBP, HEIC."
         )
 
     timestamp = int(datetime.now(timezone.utc).timestamp())
