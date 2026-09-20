@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, BigInteger, String, Boolean, DateTime, Float, ForeignKey, UniqueConstraint, ARRAY, JSON
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -147,6 +147,25 @@ class Workout_Log_Detail(Base):
     is_completed = Column(Boolean, default=True)
     detail = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    workout_log = relationship("Workout_Log", back_populates="details")
+
+
+class WorkoutNew(Base):
+    __tablename__ = "workouts_new"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    exercise_id = Column(String, nullable=False, index=True)
+    name = Column(String, nullable=False, index=True)
+    body_part = Column(String, nullable=True, index=True)
+    equipment = Column(String, nullable=True, index=True)
+    target_muscle = Column(String, nullable=True, index=True)
+    main_muscle = Column(String, nullable=True, index=True)
+    secondary_muscles = Column(ARRAY(String).with_variant(JSON, "sqlite"), nullable=True)
+    steps = Column(ARRAY(String).with_variant(JSON, "sqlite"), nullable=True)
+    image = Column(String, nullable=True)
+    gif = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
-    workout_log = relationship("Workout_Log", back_populates="details")
