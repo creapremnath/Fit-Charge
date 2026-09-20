@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from .workout import router as workout_router
 from .workout_log import router as workout_log_router
 from .workout_template import router as workout_template_router
+from .workout_new import router as workout_new_router
 
 router = APIRouter(
     tags=["workout"],
@@ -11,3 +12,5 @@ router = APIRouter(
 router.include_router(workout_router)
 router.include_router(workout_log_router)
 router.include_router(workout_template_router)
+router.include_router(workout_new_router)
+

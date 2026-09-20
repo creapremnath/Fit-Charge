@@ -27,6 +27,47 @@ class WorkoutListGet(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class WorkoutNewItem(BaseModel):
+    id: int
+    exercise_id: str
+    name: str
+    body_part: Optional[str] = None
+    equipment: Optional[str] = None
+    target_muscle: Optional[str] = None
+    main_muscle: Optional[str] = None
+    secondary_muscles: Optional[List[str]] = []
+    steps: Optional[List[str]] = []
+    image: Optional[str] = None
+    gif: Optional[str] = None
+    image_url: Optional[str] = None
+    gif_url: Optional[str] = None
+    is_active: bool = True
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class WorkoutNewListResponse(BaseModel):
+    status_code: int = 200
+    status_message: str = "success"
+    message: str = "Workouts fetched successfully"
+    total: int
+    limit: int
+    offset: int
+    workouts: List[WorkoutNewItem]
+
+
+class WorkoutFilterOptionsResponse(BaseModel):
+    status_code: int = 200
+    status_message: str = "success"
+    body_parts: List[str] = []
+    equipments: List[str] = []
+    target_muscles: List[str] = []
+    main_muscles: List[str] = []
+
+
+
 # ==========================================
 # Workout Template Schemas
 # ==========================================
